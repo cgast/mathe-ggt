@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primzahlen-Magie 🔢</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --accent: #14b8a6;
+            --bg: #fefce8;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 50%, #fce7f3 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .card-title .emoji {
+            font-size: 1.4rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-wrapper {
+            flex: 1;
+        }
+
+        .input-wrapper label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            text-align: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .result-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px dashed #e2e8f0;
+        }
+
+        .result-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .factorization {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .number-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.4rem 0.75rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .equals {
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        .prime-factor {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.5rem;
+            height: 2.5rem;
+            padding: 0 0.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .prime-2 { background: #fee2e2; color: #dc2626; }
+        .prime-3 { background: #fef3c7; color: #d97706; }
+        .prime-5 { background: #d1fae5; color: #059669; }
+        .prime-7 { background: #dbeafe; color: #2563eb; }
+        .prime-11 { background: #ede9fe; color: #7c3aed; }
+        .prime-13 { background: #fce7f3; color: #db2777; }
+        .prime-default { background: #f1f5f9; color: #475569; }
+
+        .multiply {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .ggt-result {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-radius: 1rem;
+            margin-top: 1rem;
+        }
+
+        .ggt-label {
+            font-size: 1rem;
+            color: #065f46;
+        }
+
+        .ggt-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .fraction-demo {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 1rem;
+        }
+
+        .fraction-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .fraction {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .fraction-num, .fraction-denom {
+            padding: 0.25rem 0.75rem;
+        }
+
+        .fraction-line {
+            width: 100%;
+            height: 3px;
+            background: var(--text);
+            border-radius: 2px;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .fraction-simplified {
+            color: var(--accent);
+        }
+
+        .divide-hint {
+            display: block;
+            text-align: center;
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .step-visualization {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 3rem;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .step-divider {
+            color: var(--text-light);
+        }
+
+        .step-prime {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .step-result {
+            color: var(--text-light);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-box h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box p {
+            font-size: 0.9rem;
+            color: #78350f;
+            line-height: 1.5;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .common-factors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 0.75rem 0;
+        }
+
+        .common-factor {
+            background: linear-gradient(135deg, var(--accent), #2dd4bf);
+            color: white;
+            padding: 0.4rem 0.75rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            animation: popIn 0.3s ease-out;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Primzahlen-Magie 🔢</h1>
+            <p class="subtitle">Lerne Brüche kürzen wie ein Profi!</p>
+        </header>
+
+        <div class="card">
+            <div class="card-title">
+                <span class="emoji">✨</span>
+                Gib zwei Zahlen ein
+            </div>
+            
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <label for="num1">Erste Zahl (Zähler)</label>
+                    <input type="number" id="num1" min="1" max="9999" value="24" inputmode="numeric">
+                </div>
+                <div class="input-wrapper">
+                    <label for="num2">Zweite Zahl (Nenner)</label>
+                    <input type="number" id="num2" min="1" max="9999" value="36" inputmode="numeric">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="calculate()">
+                🔍 Analysieren!
+            </button>
+        </div>
+
+        <div id="results" class="hidden">
+            <div class="card">
+                <div class="card-title">
+                    <span class="emoji">🧩</span>
+                    Primzahlzerlegung
+                </div>
+
+                <div class="tab-container">
+                    <button class="tab active" onclick="showTab('simple')">Einfach</button>
+                    <button class="tab" onclick="showTab('steps')">Schritt für Schritt</button>
+                </div>
+
+                <div id="simple-view" class="tab-content active">
+                    <div class="result-section" style="border-top: none; padding-top: 0;">
+                        <div class="result-title">Zahl 1:</div>
+                        <div id="factor1" class="factorization"></div>
+                        
+                        <div class="result-title" style="margin-top: 1rem;">Zahl 2:</div>
+                        <div id="factor2" class="factorization"></div>
+                    </div>
+                </div>
+
+                <div id="steps-view" class="tab-content">
+                    <div class="result-title">Zahl 1:</div>
+                    <div id="steps1" class="step-visualization"></div>
+                    
+                    <div class="result-title" style="margin-top: 1rem;">Zahl 2:</div>
+                    <div id="steps2" class="step-visualization"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="emoji">🎯</span>
+                    Größter gemeinsamer Teiler (GGT)
+                </div>
+
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.75rem;">
+                    Gemeinsame Primfaktoren:
+                </p>
+                <div id="common-factors" class="common-factors"></div>
+
+                <div class="ggt-result">
+                    <span class="ggt-label">GGT =</span>
+                    <span id="ggt-value" class="ggt-value">12</span>
+                </div>
+
+                <div id="fraction-demo" class="fraction-demo">
+                    <p style="text-align: center; color: #1e40af; font-weight: 600; margin-bottom: 0.75rem;">
+                        So kürzt du den Bruch:
+                    </p>
+                    <div class="fraction-row">
+                        <div class="fraction">
+                            <span id="frac-num" class="fraction-num">24</span>
+                            <div class="fraction-line"></div>
+                            <span id="frac-denom" class="fraction-denom">36</span>
+                        </div>
+                        <span class="arrow">→</span>
+                        <div class="fraction fraction-simplified">
+                            <span id="frac-num-simple" class="fraction-num">2</span>
+                            <div class="fraction-line" style="background: var(--accent);"></div>
+                            <span id="frac-denom-simple" class="fraction-denom">3</span>
+                        </div>
+                    </div>
+                    <span id="divide-hint" class="divide-hint">Beide durch 12 teilen!</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>💡 Wusstest du?</h3>
+                <p id="fun-fact">
+                    Primzahlen sind die "Bausteine" aller Zahlen! Jede Zahl lässt sich eindeutig in Primzahlen zerlegen.
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            Mit ❤️ für kleine Mathe-Profis gemacht
+        </footer>
+    </div>
+
+    <script>
+        // Prime factorization function
+        function primeFactorize(n) {
+            const factors = [];
+            const steps = [];
+            let remaining = n;
+            let divisor = 2;
+
+            while (remaining > 1) {
+                while (remaining % divisor === 0) {
+                    factors.push(divisor);
+                    steps.push({ number: remaining, prime: divisor, result: remaining / divisor });
+                    remaining = remaining / divisor;
+                }
+                divisor++;
+            }
+
+            return { factors, steps };
+        }
+
+        // GCD using prime factors
+        function gcdFromFactors(factors1, factors2) {
+            const count1 = {};
+            const count2 = {};
+            
+            factors1.forEach(f => count1[f] = (count1[f] || 0) + 1);
+            factors2.forEach(f => count2[f] = (count2[f] || 0) + 1);
+
+            const commonFactors = [];
+            const allPrimes = new Set([...Object.keys(count1), ...Object.keys(count2)]);
+            
+            allPrimes.forEach(prime => {
+                const min = Math.min(count1[prime] || 0, count2[prime] || 0);
+                for (let i = 0; i < min; i++) {
+                    commonFactors.push(parseInt(prime));
+                }
+            });
+
+            const gcd = commonFactors.length > 0 
+                ? commonFactors.reduce((a, b) => a * b, 1) 
+                : 1;
+
+            return { gcd, commonFactors };
+        }
+
+        // Get CSS class for prime number
+        function getPrimeClass(prime) {
+            const classes = {
+                2: 'prime-2',
+                3: 'prime-3',
+                5: 'prime-5',
+                7: 'prime-7',
+                11: 'prime-11',
+                13: 'prime-13'
+            };
+            return classes[prime] || 'prime-default';
+        }
+
+        // Render factorization as HTML
+        function renderFactorization(number, factors) {
+            let html = `<span class="number-badge">${number}</span>`;
+            html += `<span class="equals">=</span>`;
+            
+            factors.forEach((factor, i) => {
+                if (i > 0) html += `<span class="multiply">×</span>`;
+                html += `<span class="prime-factor ${getPrimeClass(factor)}">${factor}</span>`;
+            });
+
+            return html;
+        }
+
+        // Render steps as HTML
+        function renderSteps(steps) {
+            if (steps.length === 0) return '<div class="step">Diese Zahl ist eine Primzahl!</div>';
+            
+            return steps.map(step => `
+                <div class="step">
+                    <span class="step-number">${step.number}</span>
+                    <span class="step-divider">÷</span>
+                    <span class="step-prime">${step.prime}</span>
+                    <span class="step-divider">=</span>
+                    <span class="step-result">${step.result}</span>
+                </div>
+            `).join('');
+        }
+
+        // Tab switching
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'simple') {
+                document.querySelector('.tab:first-child').classList.add('active');
+                document.getElementById('simple-view').classList.add('active');
+            } else {
+                document.querySelector('.tab:last-child').classList.add('active');
+                document.getElementById('steps-view').classList.add('active');
+            }
+        }
+
+        // Fun facts
+        const funFacts = [
+            "Primzahlen sind die 'Bausteine' aller Zahlen! Jede Zahl lässt sich eindeutig in Primzahlen zerlegen.",
+            "Die Zahl 2 ist die einzige gerade Primzahl!",
+            "Es gibt unendlich viele Primzahlen – das hat schon Euklid vor über 2000 Jahren bewiesen!",
+            "Die größte bekannte Primzahl hat über 24 Millionen Stellen!",
+            "Der GGT hilft dir, Brüche so weit wie möglich zu kürzen.",
+            "Zwei Zahlen, deren GGT = 1 ist, nennt man 'teilerfremd'.",
+            "Primzahlen werden auch für sichere Verschlüsselung im Internet verwendet!",
+            "1 ist keine Primzahl! Primzahlen müssen genau zwei Teiler haben.",
+        ];
+
+        // Main calculation
+        function calculate() {
+            const num1 = parseInt(document.getElementById('num1').value);
+            const num2 = parseInt(document.getElementById('num2').value);
+
+            if (!num1 || !num2 || num1 < 1 || num2 < 1) {
+                alert('Bitte gib zwei positive Zahlen ein!');
+                return;
+            }
+
+            if (num1 > 9999 || num2 > 9999) {
+                alert('Bitte wähle Zahlen bis maximal 9999!');
+                return;
+            }
+
+            const result1 = primeFactorize(num1);
+            const result2 = primeFactorize(num2);
+            const { gcd, commonFactors } = gcdFromFactors(result1.factors, result2.factors);
+
+            // Show results
+            document.getElementById('results').classList.remove('hidden');
+
+            // Render factorizations
+            document.getElementById('factor1').innerHTML = renderFactorization(num1, result1.factors);
+            document.getElementById('factor2').innerHTML = renderFactorization(num2, result2.factors);
+
+            // Render steps
+            document.getElementById('steps1').innerHTML = renderSteps(result1.steps);
+            document.getElementById('steps2').innerHTML = renderSteps(result2.steps);
+
+            // Render common factors
+            const commonHtml = commonFactors.length > 0
+                ? commonFactors.map(f => `<span class="common-factor">${f}</span>`).join('')
+                : '<span style="color: var(--text-light);">Keine (die Zahlen sind teilerfremd)</span>';
+            document.getElementById('common-factors').innerHTML = commonHtml;
+
+            // GGT
+            document.getElementById('ggt-value').textContent = gcd;
+
+            // Fraction demo
+            document.getElementById('frac-num').textContent = num1;
+            document.getElementById('frac-denom').textContent = num2;
+            document.getElementById('frac-num-simple').textContent = num1 / gcd;
+            document.getElementById('frac-denom-simple').textContent = num2 / gcd;
+            
+            if (gcd > 1) {
+                document.getElementById('divide-hint').textContent = `Beide durch ${gcd} teilen!`;
+                document.getElementById('fraction-demo').classList.remove('hidden');
+            } else {
+                document.getElementById('divide-hint').textContent = 'Der Bruch ist schon vollständig gekürzt!';
+            }
+
+            // Random fun fact
+            document.getElementById('fun-fact').textContent = 
+                funFacts[Math.floor(Math.random() * funFacts.length)];
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Calculate on Enter key
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') calculate();
+            });
+        });
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
